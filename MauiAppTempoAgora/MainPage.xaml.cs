@@ -1,4 +1,8 @@
-﻿namespace MauiAppTempoAgora
+﻿using MauiAppTempoAgora.Models;
+using MauiAppTempoAgora.Services;
+using System.Threading.Tasks;
+
+namespace MauiAppTempoAgora
 {
     public partial class MainPage : ContentPage
     {
@@ -9,16 +13,53 @@
             InitializeComponent();
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+
+        private async void Button_Clicked(object sender, EventArgs e)
         {
-            count++;
+            try
+            {
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
+                if (!string.IsNullOrEmpty(txt_cidade.Text))
+                {
+                    Tempo? t = await DataService.GetPrevisao(txt_cidade.Text);
 
-            SemanticScreenReader.Announce(CounterBtn.Text);
+                    if (t != null)
+                    {
+                        string dados_previsao = "";
+                        dados_previsao = $"Latitude: {t.lat} \n" +
+                                            $"Longitude: {t.lon} \n " +
+                                            $"Nascer do Sol: {t.sunrise} \n " +
+                                            $"Por do Sol: {t.sunset} \n " +
+                                            $"Temperatura Max: {t.temp_max} \n" +
+                                            $"Temperatura Min: {t.temp_min} \n ";
+ 
+
+                        lbl_res.Text = dados_previsao;
+
+
+                    } else
+                    {
+                        lbl_res.Text = "Sem dados de Previsao ";
+
+                    }
+                }
+                else
+                {
+                    lbl_res.Text = "Preencha a cidade. ";
+                
+                
+                }
+
+            
+            } catch (Exception ex) 
+            {
+                await DisplayAlert("Ops", ex.Message, "OK!");
+
+
+            
+            
+            }
+
         }
     }
 
