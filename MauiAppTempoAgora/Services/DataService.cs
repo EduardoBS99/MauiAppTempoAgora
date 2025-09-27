@@ -12,22 +12,28 @@ namespace MauiAppTempoAgora.Services
             string chave = "3dd3de42d55e236d4e0dcd7c1f0ebbf9";
 
             string url = $"https://api.openweathermap.org/data/2.5/weather?" +
-                $"q={cidade}&units=metric&appid={chave}";
+                $"q={cidade}&units=metric&appid={chave}&lang=pt_br";
 
             using (HttpClient client = new HttpClient())
             {
                 HttpResponseMessage resp = await client.GetAsync(url);
 
                 if (resp.IsSuccessStatusCode)
-                { 
+                {
                     string json = await resp.Content.ReadAsStringAsync();
 
                     var rascunho = JObject.Parse(json);
 
+                    // ✅ Converte corretamente timestamps UNIX
+                    DateTime sunrise = DateTimeOffset
+                        .FromUnixTimeSeconds((long)rascunho["sys"]["sunrise"])
+                        .ToLocalTime()
+                        .DateTime;
 
-                    DateTime time = new();
-                    DateTime sunrise = time.AddSeconds((double)rascunho["sys"]["sunrise"]).ToLocalTime();
-                    DateTime sunset = time.AddSeconds((double)rascunho["sys"]["sunset"]).ToLocalTime();
+                    DateTime sunset = DateTimeOffset
+                        .FromUnixTimeSeconds((long)rascunho["sys"]["sunset"])
+                        .ToLocalTime()
+                        .DateTime;
 
                     t = new()
                     {
@@ -40,18 +46,15 @@ namespace MauiAppTempoAgora.Services
                         temp_max = (double)rascunho["main"]["temp_max"],
                         speed = (double)rascunho["wind"]["speed"],
                         visibility = (int)rascunho["visibility"],
-                        sunrise = sunrise.ToString(),
-                        sunset = sunset.ToString(),
-                    };// fecha objeto do tempo
-                }// fecha if se o status do servidor foi sucesso
-            }//fecha usin
 
+                        // Agora guardamos em formato legível
+                        sunrise = sunrise.ToString("dd/MM/yyyy HH:mm"),
+                        sunset = sunset.ToString("dd/MM/yyyy HH:mm"),
+                    };
+                }
+            }
 
             return t;
-        
-        
-        
         }
-
     }
 }
