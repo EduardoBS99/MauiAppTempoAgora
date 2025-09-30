@@ -1,5 +1,6 @@
 ﻿using MauiAppTempoAgora.Models;
 using MauiAppTempoAgora.Services;
+using System;
 using System.Threading.Tasks;
 
 namespace MauiAppTempoAgora
@@ -46,7 +47,7 @@ namespace MauiAppTempoAgora
                 return "Baixa (menos de 1 km)";
         }
 
-        private async void Button_Clicked(object sender, EventArgs e)
+        private async void Button_Clicked_Previsao(object sender, EventArgs e)
         {
             try
             {
@@ -96,6 +97,53 @@ namespace MauiAppTempoAgora
                 // Qualquer outro erro inesperado
                 await DisplayAlert("Ops", ex.Message, "OK!");
             }
+        }
+
+        private async void Button_Clicked_Localizacao(object sender, EventArgs e)
+        {
+            try
+            {
+                GeolocationRequest request = new GeolocationRequest(
+                    GeolocationAccuracy.Medium,
+                    TimeSpan.FromSeconds(10)
+                );
+
+                Location? local = await Geolocation.Default.GetLocationAsync(request);
+
+                if (local != null)
+                {
+                    string local_disp = $"Latitude: {local.Latitude} \n" +
+                                         $"Longitude: {local.Longitude}";
+                    lbl_coords.Text = local_disp;
+
+                } else
+                {
+                    lbl_coords.Text = "Nenhuma Localização";
+                
+                
+                }
+
+
+
+            }
+            catch (FeatureNotSupportedException fnsEx)
+            {
+                await DisplayAlert("Erro: Dispositivo não Suporta", fnsEx.Message, "OK");
+            }
+            catch (FeatureNotEnabledException fneEx)
+            {
+                await DisplayAlert("Erro: Localização Desabilitda", fneEx.Message, "OK");
+            }
+            catch (PermissionException fnpEx)
+            {
+                await DisplayAlert("Erro: Permissão de Localização", fnpEx.Message, "OK");
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Erro", ex.Message, "OK");
+
+            }
+
         }
     }
 }

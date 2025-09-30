@@ -24,7 +24,7 @@ namespace MauiAppTempoAgora.Services
 
                     var rascunho = JObject.Parse(json);
 
-                    // ✅ Converte corretamente timestamps UNIX
+                    // Converte corretamente timestamps UNIX
                     DateTime sunrise = DateTimeOffset
                         .FromUnixTimeSeconds((long)rascunho["sys"]["sunrise"])
                         .ToLocalTime()
@@ -50,9 +50,9 @@ namespace MauiAppTempoAgora.Services
                         // Agora guardamos em formato legível
                         sunrise = sunrise.ToString("dd/MM/yyyy HH:mm"),
                         sunset = sunset.ToString("dd/MM/yyyy HH:mm"),
-                    };
-                }
-            }
+                    };// fecha objeto do tempo
+                }// fecha if se o status do servidor foi sucesso
+            }//fecha usin
 
             return t;
         }
